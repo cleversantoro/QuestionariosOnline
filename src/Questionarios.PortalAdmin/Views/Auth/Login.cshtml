@@ -1,0 +1,73 @@
+@model Questionarios.PortalAdmin.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+<section class="auth-card">
+    <div class="auth-illustration">
+        <div class="pill pill-primary">Portal Admin</div>
+        <h1>Acesse o painel do Questionário</h1>
+        <p>Gerencie cadastros, acompanhe respostas em tempo real e visualize os gráficos do seu questionário.</p>
+        <div class="insight-cards">
+            <div class="insight">
+                <div class="label">Status das respostas</div>
+                <div class="value text-success">82% ativos</div>
+            </div>
+            <div class="insight">
+                <div class="label">Tempo médio</div>
+                <div class="value">3m 12s</div>
+            </div>
+        </div>
+    </div>
+    <div class="auth-form">
+        <div class="text-end mb-3">
+            <span class="badge rounded-pill bg-light text-dark">Português</span>
+        </div>
+        <h2 class="mb-1">Bem-vindo de volta</h2>
+        <p class="text-muted mb-4">Entre para acessar o Dashboard.</p>
+        <div class="alert alert-info d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-key-fill"></i>
+            <div>
+                Acesso mock: <strong>admin@questionarios.com</strong> / <strong>Admin@123</strong>
+            </div>
+        </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <form asp-action="Login" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="usuario@empresa.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control form-control-lg" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            <div class="row align-items-center mb-4">
+                <div class="col-6">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+                </div>
+                <div class="col-6 text-end">
+                    <a href="#" class="text-decoration-none small fw-semibold">Esqueceu a senha?</a>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Idioma</label>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="Language" id="langPt" value="pt" checked="@(Model.Language == "pt")" />
+                    <label class="btn btn-outline-primary" for="langPt">Português</label>
+                    <input type="radio" class="btn-check" name="Language" id="langEn" value="en" checked="@(Model.Language == "en")" />
+                    <label class="btn btn-outline-primary" for="langEn">English</label>
+                    <input type="radio" class="btn-check" name="Language" id="langEs" value="es" checked="@(Model.Language == "es")" />
+                    <label class="btn btn-outline-primary" for="langEs">Español</label>
+                </div>
+            </div>
+            <button class="btn btn-primary w-100 btn-lg shadow-sm" type="submit">Entrar</button>
+        </form>
+    </div>
+</section>
+<partial name="_ValidationScriptsPartial" />

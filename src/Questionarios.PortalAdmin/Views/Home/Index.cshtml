@@ -1,8 +1,244 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model Questionarios.PortalAdmin.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Olá, @Model.UserName</p>
+        <h1>Dashboard</h1>
+        <p class="text-muted">Escolha um questionário e acompanhe os indicadores em tempo real.</p>
+    </div>
+    <div class="header-actions">
+        <div class="form-group mb-0">
+            <label class="form-label">Questionário</label>
+            <select id="questionarioSelect" class="form-select">
+                @foreach (var item in Model.Questionarios)
+                {
+                    <option value="@item" selected="@(item == Model.SelectedQuestionario)">@item</option>
+                }
+            </select>
+        </div>
+        <a class="btn btn-primary btn-lg" asp-controller="Home" asp-action="Index" asp-fragment="cadastro-questionario">
+            <i class="bi bi-plus-lg me-2"></i>Novo Questionário
+        </a>
+    </div>
 </div>
+
+<section class="highlight-grid">
+    @foreach (var card in Model.Highlights)
+    {
+        <article class="stat-card">
+            <div class="stat-card__label">@card.Title</div>
+            <div class="stat-card__value">@card.Value</div>
+            <div class="stat-card__trend @(card.TrendIsPositive ? "text-success" : "text-danger")">
+                <i class="bi @(card.TrendIsPositive ? "bi-arrow-up-right" : "bi-arrow-down-right") me-1"></i>
+                @card.Trend
+            </div>
+        </article>
+    }
+</section>
+
+<section class="charts-grid" id="charts">
+    <article class="panel-card wide">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Evolução diária</p>
+                <h3>Respostas recebidas</h3>
+            </div>
+            <div class="chip chip-success">Ao vivo</div>
+        </div>
+        <canvas id="responsesChart" height="140"></canvas>
+    </article>
+    <article class="panel-card">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Distribuição</p>
+                <h3>Tipo de resposta</h3>
+            </div>
+        </div>
+        <canvas id="distributionChart" height="220"></canvas>
+    </article>
+    <article class="panel-card">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Engajamento</p>
+                <h3>Conclusões por canal</h3>
+            </div>
+        </div>
+        <canvas id="channelChart" height="220"></canvas>
+    </article>
+</section>
+
+<section class="two-column mt-4">
+    <div class="panel-card" id="cadastro-questionario">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Cadastros</p>
+                <h3>Cadastro do Questionário</h3>
+            </div>
+            <span class="chip chip-neutral">Workflow guiado</span>
+        </div>
+        <p class="text-muted mb-3">Defina título, público-alvo, datas e regras de publicação para cada questionário.</p>
+        <div class="cta-row">
+            <button class="btn btn-outline-primary">Configurar publicação</button>
+            <button class="btn btn-link text-decoration-none">Ver questionários ativos</button>
+        </div>
+    </div>
+    <div class="panel-card" id="cadastro-perguntas">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Cadastros</p>
+                <h3>Cadastro das Perguntas</h3>
+            </div>
+            <span class="chip chip-neutral">Blocos</span>
+        </div>
+        <p class="text-muted mb-3">Monte blocos de perguntas com tipos variados, lógica de salto e pesos de pontuação.</p>
+        <div class="cta-row">
+            <button class="btn btn-outline-primary">Criar bloco</button>
+            <button class="btn btn-link text-decoration-none">Biblioteca de perguntas</button>
+        </div>
+    </div>
+</section>
+
+<section class="two-column mt-4" id="cadastro-usuarios">
+    <div class="panel-card">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Cadastros</p>
+                <h3>Cadastro de Usuários</h3>
+            </div>
+            <span class="chip chip-success">3 equipes</span>
+        </div>
+        <p class="text-muted mb-3">Convide administradores, atribua papéis e controle o acesso por squads ou regiões.</p>
+        <div class="cta-row">
+            <button class="btn btn-outline-primary">Adicionar usuário</button>
+            <button class="btn btn-link text-decoration-none">Gerenciar papéis</button>
+        </div>
+    </div>
+    <div class="panel-card">
+        <div class="panel-card__head">
+            <div>
+                <p class="eyebrow">Atualizações</p>
+                <h3>Atividades recentes</h3>
+            </div>
+        </div>
+        <ul class="activity-list">
+            @foreach (var item in Model.Activities)
+            {
+                <li>
+                    <div>
+                        <div class="fw-semibold">@item.Title</div>
+                        <div class="text-muted small">@item.Description</div>
+                    </div>
+                    <span class="chip chip-neutral">@item.Status</span>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const questionarioData = {
+            "Pesquisa de Satisfação": {
+                labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                responses: [45, 62, 58, 73, 66, 52, 61],
+                distribution: [54, 23, 15, 8],
+                channels: [320, 220, 180]
+            },
+            "Clima Organizacional": {
+                labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                responses: [30, 41, 55, 63, 48, 39, 44],
+                distribution: [48, 30, 12, 10],
+                channels: [260, 180, 140]
+            },
+            "Onboarding": {
+                labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                responses: [20, 26, 33, 40, 35, 30, 31],
+                distribution: [60, 20, 10, 10],
+                channels: [180, 140, 90]
+            },
+            "NPS Produtos": {
+                labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+                responses: [52, 61, 59, 70, 65, 58, 63],
+                distribution: [68, 18, 8, 6],
+                channels: [340, 210, 170]
+            }
+        };
+
+        const questionarioSelect = document.getElementById("questionarioSelect");
+        const responseCtx = document.getElementById("responsesChart");
+        const distributionCtx = document.getElementById("distributionChart");
+        const channelCtx = document.getElementById("channelChart");
+
+        const responsesChart = new Chart(responseCtx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Respostas",
+                    data: [],
+                    fill: true,
+                    tension: 0.4,
+                    borderColor: "#5c7bff",
+                    backgroundColor: "rgba(92, 123, 255, 0.15)",
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const distributionChart = new Chart(distributionCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Positivas", "Neutras", "Negativas", "Pularam"],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ["#4ade80", "#60a5fa", "#f97316", "#c084fc"],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { position: "bottom" } } }
+        });
+
+        const channelChart = new Chart(channelCtx, {
+            type: "bar",
+            data: {
+                labels: ["Web", "Mobile", "E-mail"],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ["#5c7bff", "#22d3ee", "#f97316"],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        function updateCharts(key) {
+            const dataset = questionarioData[key];
+            if (!dataset) return;
+
+            responsesChart.data.labels = dataset.labels;
+            responsesChart.data.datasets[0].data = dataset.responses;
+            responsesChart.update();
+
+            distributionChart.data.datasets[0].data = dataset.distribution;
+            distributionChart.update();
+
+            channelChart.data.datasets[0].data = dataset.channels;
+            channelChart.update();
+        }
+
+        questionarioSelect.addEventListener("change", (event) => {
+            updateCharts(event.target.value);
+        });
+
+        updateCharts(questionarioSelect.value);
+    </script>
+}
