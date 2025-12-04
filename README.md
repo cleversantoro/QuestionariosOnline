@@ -26,7 +26,7 @@ docker compose up -d sqlserver
 
 2) Aplicar o script de schema + seed:
 ```
-sqlcmd -S localhost,1433 -U sa -P H56ut098 -i sql/init_questionarios.sql
+sqlcmd -S localhost,1433 -U sa -P XXXXXX -i sql/init_questionarios.sql
 ```
 
 ## Configuracao da API
