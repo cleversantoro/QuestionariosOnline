@@ -21,7 +21,7 @@ API em .NET 9 para criar pesquisas, coletar respostas e expor resultados agregad
 ```
 docker compose up -d sqlserver
 ```
-   - Usuario: `sa` / Senha: `H56ut098` (definido no compose)
+   - Usuario: `sa` / Senha: `XXXXXXX` (definido no compose)
    - Porta exposta: 1433
 
 2) Aplicar o script de schema + seed:
