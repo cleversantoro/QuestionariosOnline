@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Questionários</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Questionarios.WebPublico.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="layout-shell">
+        <header class="site-header">
+            <div class="brand">
+                <span class="brand-dot"></span>
+                <a class="brand-name" asp-controller="Survey" asp-action="Index">Questionários</a>
+            </div>
+            <a class="chip" href="https://localhost:7145/swagger" target="_blank" rel="noreferrer">Ver API</a>
+        </header>
+
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+
+        <footer class="footer">
+            <p class="mb-0 text-muted">© 2025 Questionários Online — Contribua respondendo e compartilhando.</p>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

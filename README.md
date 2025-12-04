@@ -1,0 +1,64 @@
+# Questionarios Online
+
+API em .NET 9 para criar pesquisas, coletar respostas e expor resultados agregados para graficos. O banco roda em SQL Server (imagem oficial) com script de seed em `sql/init_questionarios.sql`.
+
+## Estrutura
+- `src/Questionarios.Api`: Web API (Swagger, controllers de Survey, Responses e Results).
+- `src/Questionarios.Application`: DTOs e servicos de aplicacao.
+- `src/Questionarios.Domain`: Entidades e contratos de repositorio.
+- `src/Questionarios.Infrastructure`: EF Core (DbContext, repositorios) e servicos auxiliares.
+- `tests/Questionarios.Tests.Integration`: testes de integracao com WebApplicationFactory + banco InMemory.
+- `tests/Questionarios.Tests.Unit`: esqueleto de testes unitarios.
+- `sql/init_questionarios.sql`: cria DB, tabelas e dados de exemplo.
+
+## Requisitos
+- .NET SDK 9.0+
+- Docker e Docker Compose (para o SQL Server local)
+- `sqlcmd` ou SSMS para rodar o script de seed
+
+## Subir o banco com Docker
+1) Iniciar o container de SQL Server:
+```
+docker compose up -d sqlserver
+```
+   - Usuario: `sa` / Senha: `H56ut098` (definido no compose)
+   - Porta exposta: 1433
+
+2) Aplicar o script de schema + seed:
+```
+sqlcmd -S localhost,1433 -U sa -P H56ut098 -i sql/init_questionarios.sql
+```
+
+## Configuracao da API
+- Connection string padrao em `src/Questionarios.Api/appsettings.json`:
+  ```
+  Server=localhost,1433;Database=QuestionariosDb;User ID=sa;Password=H56ut098;TrustServerCertificate=True;
+  ```
+- Variavel de ambiente equivalente: `ConnectionStrings__DefaultConnection`.
+- Se rodar a API em container junto ao compose, use `Server=sqlserver,1433;...`.
+
+## Executar a API localmente
+```
+dotnet restore
+dotnet run --project src/Questionarios.Api
+```
+- Enderecos padrao: `http://localhost:5034` e `https://localhost:7145`.
+- Swagger: `/swagger`.
+
+## Endpoints principais
+- `GET /api/survey/{id}`: detalhe da pesquisa com perguntas e opcoes.
+- `POST /api/survey`: cria pesquisa.
+- `POST /api/survey/{id}/close`: fecha pesquisa.
+- `POST /api/responses`: envia respostas de um respondente.
+- `GET /api/results/{surveyId}`: resultados agregados.
+- `GET /api/results/{surveyId}/chart`: formato pronto para graficos (percentuais por opcao).
+
+## Testes
+- Testes de integracao usam banco InMemory com seed equivalente ao script SQL.
+```
+dotnet test QuestionariosOnline.sln
+```
+
+## Observacoes
+- O seed cria uma pesquisa de exemplo com perguntas e opcoes fixas (GUIDs conhecidos) para facilitar debug e testes.
+- O container `questionarios-sql` persiste dados em um volume Docker (`mssql_data`).

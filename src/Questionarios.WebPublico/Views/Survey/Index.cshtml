@@ -1,0 +1,96 @@
+@model Questionarios.WebPublico.Models.SurveyResponseViewModel
+@{
+    ViewData["Title"] = Model?.Survey?.Title ?? "Pesquisa";
+    var survey = Model?.Survey;
+}
+
+<div class="survey-hero">
+    <div class="survey-hero__content">
+        <p class="eyebrow">Pesquisa online</p>
+        <h1>@(survey?.Title ?? "Pesquisa indisponível")</h1>
+        <p class="lead">Responda às perguntas abaixo. Leva menos de 2 minutos.</p>
+    </div>
+</div>
+
+<div class="survey-card">
+    @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model?.SuccessMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @Model.SuccessMessage
+        </div>
+    }
+
+    @if (survey is null)
+    {
+        <p class="text-muted mb-0">Não há pesquisa para exibir no momento.</p>
+    }
+    else
+    {
+        <form asp-action="Submit" method="post" class="survey-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="surveyId" value="@survey.Id" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @for (var i = 0; i < Model!.Answers.Count; i++)
+            {
+                var question = survey.Questions.First(q => q.Id == Model.Answers[i].QuestionId);
+                <div class="question-block">
+                    <input type="hidden" asp-for="Answers[@i].QuestionId" />
+                    <input type="hidden" asp-for="Answers[@i].QuestionText" />
+                    <p class="question-title">@($"{i + 1}. {question.Text}")</p>
+                    <div class="options-grid">
+                        @foreach (var option in question.Options.OrderBy(o => o.Order))
+                        {
+                            var inputId = $"q{question.Id}-o{option.Id}";
+                            <label class="option-pill" for="@inputId">
+                                <input type="radio"
+                                       class="btn-check"
+                                       id="@inputId"
+                                       asp-for="Answers[@i].SelectedOptionId"
+                                       value="@option.Id" />
+                                <span>@option.Text</span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Answers[@i].SelectedOptionId" class="text-danger small"></span>
+                </div>
+            }
+
+            <div class="email-optin">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" asp-for="SendCopy" id="sendCopySwitch" />
+                    <label class="form-check-label" for="sendCopySwitch">Quero receber uma cópia no meu e-mail</label>
+                </div>
+                <div id="emailField" class="email-field @(Model!.SendCopy ? "" : "d-none")">
+                    <label class="form-label" for="Email">E-mail</label>
+                    <input class="form-control" asp-for="Email" placeholder="voce@email.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Salvar e enviar respostas</button>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const sendCopySwitch = document.getElementById('sendCopySwitch');
+        const emailField = document.getElementById('emailField');
+
+        if (sendCopySwitch) {
+            sendCopySwitch.addEventListener('change', () => {
+                emailField.classList.toggle('d-none', !sendCopySwitch.checked);
+            });
+        }
+    </script>
+}

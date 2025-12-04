@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: questionarios-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=H56ut098
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    # - ./sql:/init
+    # networks:
+    #   - questionarios-net
+    # command: >
+    #   /bin/bash -c "
+    #     /opt/mssql/bin/sqlservr &
+    #     sleep 25 &&
+    #     /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SenhaSuperForte!123' -d master -i /init/init_questionarios.sql &&
+    #     wait
+    #   "
+
+  # api:
+  #   build:
+  #     context: ./src/Questionarios.Api
+  #     dockerfile: Dockerfile
+  #   container_name: questionarios-api
+  #   depends_on:
+  #     - sqlserver
+  #   environment:
+  #     - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=QuestionariosDb;User Id=sa;Password=SenhaSuperForte!123;TrustServerCertificate=True;
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #   ports:
+  #     - "5000:8080"
+  #   networks:
+  #     - questionarios-net
+
+volumes:
+  mssql_data:
+
+# networks:
+#   questionarios-net:
+#     driver: bridge
