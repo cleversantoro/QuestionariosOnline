@@ -25,6 +25,18 @@ public class Survey
         EndAt = endAt;
     }
 
+    public void Update(string title, DateTime startAt, DateTime endAt)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title is required.", nameof(title));
+        if (endAt <= startAt)
+            throw new ArgumentException("EndAt must be greater than StartAt.");
+
+        Title = title;
+        StartAt = startAt;
+        EndAt = endAt;
+    }
+
     public bool IsActive(DateTime now) =>
         !IsClosed && now >= StartAt && now <= EndAt;
 

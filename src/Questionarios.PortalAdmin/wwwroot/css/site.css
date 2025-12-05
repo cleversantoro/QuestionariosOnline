@@ -367,8 +367,9 @@ a {
 
 .footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--surface-muted);
-  color: var(--muted);
+  background: #fff;
+  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.06);
+  color: var(--text);
   display: flex;
   justify-content: space-between;
   align-items: center;

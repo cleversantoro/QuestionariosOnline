@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questionarios.PortalAdmin.Models;
+using Questionarios.PortalAdmin.Services;
 
 namespace Questionarios.PortalAdmin.Controllers;
 
 public class AuthController : Controller
 {
     private const string SessionUserNameKey = "UserName";
-    private static readonly List<MockUser> MockUsers =
-    [
-        new("admin@questionarios.com", "Admin@123", "Admin Portal"),
-        new("gestor@questionarios.com", "Gestor@123", "Gestor")
-    ];
+    private readonly IQuestionariosApiClient _api;
+
+    public AuthController(IQuestionariosApiClient api)
+    {
+        _api = api;
+    }
 
     [HttpGet]
     public IActionResult Login()
@@ -26,25 +28,23 @@ public class AuthController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        var user = MockUsers.FirstOrDefault(u =>
-            string.Equals(u.Email, model.Email.Trim(), StringComparison.OrdinalIgnoreCase)
-            && u.Password == model.Password);
-
+        var user = await _api.LoginAsync(model.Email.Trim(), model.Password, HttpContext.RequestAborted);
         if (user is null)
         {
-            ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos. Use o mock abaixo.");
+            ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos.");
             return View(model);
         }
 
         HttpContext.Session.SetString(SessionUserNameKey, user.Name);
         HttpContext.Session.SetString("PreferredLanguage", model.Language ?? "pt");
+        HttpContext.Session.SetString("UserEmail", user.Email);
 
         return RedirectToAction("Index", "Home");
     }

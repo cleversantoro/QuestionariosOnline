@@ -2,20 +2,25 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questionarios.PortalAdmin.Models;
+using Questionarios.PortalAdmin.Services;
 
 namespace Questionarios.PortalAdmin.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IQuestionariosApiClient _api;
+    private readonly IConfiguration _configuration;
     private const string SessionUserNameKey = "UserName";
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IQuestionariosApiClient api, IConfiguration configuration)
     {
         _logger = logger;
+        _api = api;
+        _configuration = configuration;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken ct)
     {
         var userName = HttpContext.Session.GetString(SessionUserNameKey);
         if (string.IsNullOrWhiteSpace(userName))
@@ -23,31 +28,33 @@ public class HomeController : Controller
             return RedirectToAction("Login", "Auth");
         }
 
-        var questionarios = new List<string>
+        var surveys = await _api.GetSurveysAsync(ct);
+        var selectedSurvey = surveys.FirstOrDefault();
+        SurveyChartResultDto? chart = null;
+        if (selectedSurvey is not null)
         {
-            "Pesquisa de Satisfação",
-            "Clima Organizacional",
-            "Onboarding",
-            "NPS Produtos"
-        };
+            chart = await _api.GetSurveyChartAsync(selectedSurvey.Id, ct);
+        }
 
         var viewModel = new DashboardViewModel
         {
             UserName = userName,
-            SelectedQuestionario = questionarios.First(),
-            Questionarios = questionarios,
+            SelectedSurveyId = selectedSurvey?.Id,
+            Surveys = surveys.ToList(),
+            ChartData = chart,
+            ApiBaseUrl = _configuration.GetSection(Services.ApiOptions.SectionName).GetValue<string>("BaseUrl") ?? string.Empty,
             Highlights = new List<HighlightCard>
             {
-                new("Taxa de Resposta", "82%", "+4.3%", true),
-                new("Tempo Médio", "3m 12s", "-0.8%", true),
-                new("Pontuação NPS", "64", "+2", true),
-                new("Questionários Ativos", "12", "Novo", true)
+                new("Questionários", surveys.Count.ToString(), "+", true),
+                new("Respostas", chart?.Questions.Sum(q => q.Options.Sum(o => o.Votes)).ToString() ?? "0", "+", true),
+                new("Questões", chart?.Questions.Count.ToString() ?? "0", "+", true),
+                new("Ativos", surveys.Count(s => !s.IsClosed).ToString(), "Ativos", true)
             },
             Activities = new List<ActivityItem>
             {
-                new("Questionário publicado", "Onboarding 2025 foi publicado para 430 usuários", "Publicado"),
-                new("Nova pergunta", "Bloco de métricas adicionado em Pesquisa de Satisfação", "Revisão"),
-                new("Alerta", "Taxa de abandono alta no bloco final de Clima", "Alerta")
+                new("Questionário", "Carregado do serviço", "Sync"),
+                new("Resultados", "Gráficos baseados na API", "Dados"),
+                new("Usuário", $"Logado como {userName}", "Sessão")
             }
         };
 

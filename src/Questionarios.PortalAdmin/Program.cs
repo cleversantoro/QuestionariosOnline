@@ -8,6 +8,14 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.IdleTimeout = TimeSpan.FromHours(8);
 });
+builder.Services.Configure<Questionarios.PortalAdmin.Services.ApiOptions>(
+    builder.Configuration.GetSection(Questionarios.PortalAdmin.Services.ApiOptions.SectionName));
+builder.Services.AddHttpClient<Questionarios.PortalAdmin.Services.IQuestionariosApiClient, Questionarios.PortalAdmin.Services.QuestionariosApiClient>((sp, client) =>
+{
+    var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Questionarios.PortalAdmin.Services.ApiOptions>>().Value;
+    client.BaseAddress = new Uri(opts.BaseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+});
 
 var app = builder.Build();
 

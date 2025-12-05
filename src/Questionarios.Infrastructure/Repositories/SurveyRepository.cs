@@ -16,6 +16,9 @@ public class SurveyRepository : ISurveyRepository
            .ThenInclude(q => q.Options)
            .FirstOrDefaultAsync(s => s.Id == id, ct);
 
+    public async Task<IReadOnlyList<Survey>> GetAllAsync(CancellationToken ct = default) =>
+        await _db.Surveys.AsNoTracking().OrderBy(s => s.StartAt).ToListAsync(ct);
+
     public async Task AddAsync(Survey survey, CancellationToken ct = default)
     {
         await _db.Surveys.AddAsync(survey, ct);
@@ -25,6 +28,12 @@ public class SurveyRepository : ISurveyRepository
     public async Task UpdateAsync(Survey survey, CancellationToken ct = default)
     {
         _db.Surveys.Update(survey);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteAsync(Survey survey, CancellationToken ct = default)
+    {
+        _db.Surveys.Remove(survey);
         await _db.SaveChangesAsync(ct);
     }
 }

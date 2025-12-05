@@ -31,12 +31,35 @@ public class SurveyService : ISurveyService
         return MapToSummary(survey);
     }
 
+    public async Task<IReadOnlyList<SurveySummaryDto>> GetAllAsync(CancellationToken ct = default)
+    {
+        var surveys = await _surveyRepository.GetAllAsync(ct);
+        return surveys.Select(MapToSummary).ToList();
+    }
+
     public async Task<SurveyDetailDto> GetDetailAsync(Guid id, CancellationToken ct = default)
     {
         var survey = await _surveyRepository.GetByIdAsync(id, ct)
                      ?? throw new InvalidOperationException("Survey not found");
 
         return MapToDetail(survey);
+    }
+
+    public async Task UpdateAsync(Guid id, SurveyCreateDto dto, CancellationToken ct = default)
+    {
+        var survey = await _surveyRepository.GetByIdAsync(id, ct)
+                     ?? throw new InvalidOperationException("Survey not found");
+
+        survey.Update(dto.Title, dto.StartAt, dto.EndAt);
+        await _surveyRepository.UpdateAsync(survey, ct);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var survey = await _surveyRepository.GetByIdAsync(id, ct)
+                     ?? throw new InvalidOperationException("Survey not found");
+
+        await _surveyRepository.DeleteAsync(survey, ct);
     }
 
     public async Task CloseAsync(Guid id, CancellationToken ct = default)

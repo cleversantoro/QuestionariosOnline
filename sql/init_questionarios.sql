@@ -19,6 +19,7 @@ IF OBJECT_ID('dbo.Responses', 'U')        IS NOT NULL DROP TABLE dbo.Responses;
 IF OBJECT_ID('dbo.Options', 'U')          IS NOT NULL DROP TABLE dbo.Options;
 IF OBJECT_ID('dbo.Questions', 'U')        IS NOT NULL DROP TABLE dbo.Questions;
 IF OBJECT_ID('dbo.Surveys', 'U')          IS NOT NULL DROP TABLE dbo.Surveys;
+IF OBJECT_ID('dbo.Users', 'U')            IS NOT NULL DROP TABLE dbo.Users;
 GO
 
 ------------------------------------------------------------
@@ -155,6 +156,19 @@ ADD CONSTRAINT FK_AggregatedResults_Options
     ON DELETE CASCADE;
 GO
 
+CREATE TABLE dbo.Users (
+    Id           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Users PRIMARY KEY,
+    [Name]       NVARCHAR(150)    NOT NULL,
+    Email        NVARCHAR(200)    NOT NULL,
+    PasswordHash VARBINARY(64)    NOT NULL,
+    CreatedAt    DATETIME2(0)     NOT NULL CONSTRAINT DF_Users_CreatedAt DEFAULT(SYSUTCDATETIME())
+);
+GO
+
+CREATE UNIQUE INDEX IX_Users_Email
+    ON dbo.Users (Email);
+GO
+
 ------------------------------------------------------------
 -- DADOS DE EXEMPLO – 1 SURVEY, 5 PERGUNTAS
 ------------------------------------------------------------
@@ -186,6 +200,15 @@ DECLARE @O43 UNIQUEIDENTIFIER = '66666666-6666-6666-6666-666666666663';
 DECLARE @O51 UNIQUEIDENTIFIER = '77777777-7777-7777-7777-777777777771';
 DECLARE @O52 UNIQUEIDENTIFIER = '77777777-7777-7777-7777-777777777772';
 DECLARE @O53 UNIQUEIDENTIFIER = '77777777-7777-7777-7777-777777777773';
+
+DECLARE @UserAdmin UNIQUEIDENTIFIER = '99999999-1111-2222-3333-444444444444';
+DECLARE @UserEditor UNIQUEIDENTIFIER = '99999999-1111-2222-3333-444444444445';
+
+-- USERS (admin + editor)
+INSERT INTO dbo.Users (Id, [Name], Email, PasswordHash)
+VALUES
+(@UserAdmin, 'Administrador', 'admin@questionarios.com', HASHBYTES('SHA2_256', 'Admin@123')),
+(@UserEditor, 'Editor', 'editor@questionarios.com', HASHBYTES('SHA2_256', 'Editor@123'));
 
 -- Survey
 INSERT INTO dbo.Surveys (Id, Title, StartAt, EndAt, IsClosed)

@@ -21,14 +21,17 @@ services.AddDbContext<QuestionariosDbContext>(opt =>
 
 // Domain infra
 services.AddScoped<ISurveyRepository, SurveyRepository>();
+services.AddScoped<IQuestionRepository, QuestionRepository>();
 services.AddScoped<IResponseRepository, ResponseRepository>();
 services.AddScoped<IResultsRepository, ResultsRepository>();
+services.AddScoped<IUserRepository, UserRepository>();
 
 services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();
 
 // App layer services
 services.AddScoped<ISurveyService, SurveyService>();
 services.AddScoped<IQuestionService, QuestionService>();
+services.AddScoped<IUserService, UserService>();
 services.AddScoped<IResponseService, ResponseService>();
 services.AddScoped<IResultsService, ResultsService>();
 

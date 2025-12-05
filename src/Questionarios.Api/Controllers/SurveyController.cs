@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Questionarios.Application.DTOs;
 using Questionarios.Application.Services;
 
@@ -15,7 +15,14 @@ public class SurveyController : ControllerBase
         _surveyService = surveyService;
     }
 
-    // AGORA RETORNA DETALHE (com perguntas + opções)
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var surveys = await _surveyService.GetAllAsync(ct);
+        return Ok(surveys);
+    }
+
+    // AGORA RETORNA DETALHE (com perguntas + opcoes)
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
@@ -28,6 +35,20 @@ public class SurveyController : ControllerBase
     {
         var survey = await _surveyService.CreateAsync(dto, ct);
         return CreatedAtAction(nameof(Get), new { id = survey.Id }, survey);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] SurveyCreateDto dto, CancellationToken ct)
+    {
+        await _surveyService.UpdateAsync(id, dto, ct);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await _surveyService.DeleteAsync(id, ct);
+        return NoContent();
     }
 
     [HttpPost("{id:guid}/close")]

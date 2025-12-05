@@ -52,6 +52,20 @@ dotnet run --project src/Questionarios.Api
 - `POST /api/responses`: envia respostas de um respondente.
 - `GET /api/results/{surveyId}`: resultados agregados.
 - `GET /api/results/{surveyId}/chart`: formato pronto para graficos (percentuais por opcao).
+- `GET /api/users`: lista usuarios.
+- `GET /api/users/{id}`: detalhe.
+- `POST /api/users`: cria (nome, email, senha).
+- `PUT /api/users/{id}`: atualiza dados e, opcionalmente, senha.
+- `DELETE /api/users/{id}`: remove.
+- `POST /api/users/login`: autentica (retorna usuario se ok, 401 se credencial invalida).
+
+## Entidades de dominio
+- `Survey`: raiz da pesquisa; tem `Title`, janela `StartAt/EndAt`, flag `IsClosed` e a colecao de `Questions`. Valida datas na criacao e sabe dizer se esta ativa (metodo `IsActive`) ou fechar (`Close`).
+- `Question`: pergunta vinculada a um `Survey` (`SurveyId`), com `Text`, ordem opcional e lista de `Options`. Permite ajustar a ordem via `SetOrder`.
+- `Option`: alternativa de uma `Question` (`QuestionId`), com texto e ordem opcional. Tambem tem `SetOrder`.
+- `Response`: resposta de um respondente para um `Survey` (`SurveyId`) com `AnsweredAt` e colecao de `ResponseItem`. O metodo `AddItem` adiciona pares pergunta/opcao.
+- `ResponseItem`: item de resposta granular, amarra `ResponseId`, `QuestionId` e `OptionId` (mais as navegacoes EF).
+- `AggregatedResult`: estrutura para contagem agregada por `Survey/Question/Option` com `Votes` e o metodo `IncrementVote` para somar votos.
 
 ## Testes
 - Testes de integracao usam banco InMemory com seed equivalente ao script SQL.
@@ -62,3 +76,4 @@ dotnet test QuestionariosOnline.sln
 ## Observacoes
 - O seed cria uma pesquisa de exemplo com perguntas e opcoes fixas (GUIDs conhecidos) para facilitar debug e testes.
 - O container `questionarios-sql` persiste dados em um volume Docker (`mssql_data`).
+- Seed de usuarios para testes: `admin@questionarios.com` / `Admin@123` e `editor@questionarios.com` / `Editor@123`.

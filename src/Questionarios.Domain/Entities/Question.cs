@@ -22,5 +22,13 @@ public class Question
     }
 
     public void SetOrder(int order) => Order = order;
-}
 
+    public void Update(string text, int? order = null)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException("Text is required.", nameof(text));
+
+        Text = text;
+        Order = order;
+    }
+}

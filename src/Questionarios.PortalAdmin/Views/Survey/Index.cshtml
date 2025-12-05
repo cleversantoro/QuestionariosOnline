@@ -1,0 +1,119 @@
+@model Questionarios.PortalAdmin.Models.SurveyListViewModel
+@{
+    ViewData["Title"] = "Questionarios";
+}
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Cadastros</p>
+        <h1>Questionários</h1>
+        <p class="text-muted">Gerencie os questionários existentes e crie novos.</p>
+    </div>
+    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#newSurveyModal">
+        <i class="bi bi-plus-lg me-2"></i>Adicionar Questionário
+    </button>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <div>
+            <p class="eyebrow">Lista</p>
+            <h3>Questionários cadastrados</h3>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>Título</th>
+                <th>Cadastro</th>
+                <th>Ativo</th>
+                <th class="text-end">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Surveys.Any())
+            {
+                foreach (var item in Model.Surveys)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.StartAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (!item.IsClosed)
+                            {
+                                <span class="badge bg-success">Sim</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Não</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a class="btn btn-outline-primary btn-sm" asp-controller="Home" asp-action="Index" asp-fragment="charts" title="Visualizar">
+                                    <i class="bi bi-bar-chart"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir" onclick="return confirm('Excluir este questionário?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Nenhum questionário cadastrado.</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="newSurveyModal" tabindex="-1" aria-labelledby="newSurveyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newSurveyModalLabel">Novo Questionário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input name="Title" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Início</label>
+                            <input name="StartAt" type="date" class="form-control" required />
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Fim</label>
+                            <input name="EndAt" type="date" class="form-control" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

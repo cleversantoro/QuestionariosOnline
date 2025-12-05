@@ -1,0 +1,135 @@
+@model Questionarios.PortalAdmin.Models.QuestionListViewModel
+@{
+    ViewData["Title"] = "Perguntas";
+}
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Cadastros</p>
+        <h1>Perguntas</h1>
+        <p class="text-muted">Selecione um questionário para visualizar e cadastrar perguntas.</p>
+    </div>
+</div>
+
+<div class="panel-card mb-3">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">Questionário</label>
+            <select name="surveyId" class="form-select" onchange="this.form.submit()">
+                <option value="">Selecione</option>
+                @foreach (var survey in Model.Surveys)
+                {
+                    <option value="@survey.Id" selected="@(survey.Id == Model.SelectedSurveyId)">@survey.Title</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6 text-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newQuestionModal" @(Model.SelectedSurveyId == null ? "disabled" : "")>
+                <i class="bi bi-plus-lg me-2"></i>Adicionar Pergunta
+            </button>
+        </div>
+    </form>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <div>
+            <p class="eyebrow">Lista</p>
+            <h3>Perguntas do questionário</h3>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>Texto</th>
+                <th>Ordem</th>
+                <th>Opções</th>
+                <th class="text-end">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Questions.Any())
+            {
+                foreach (var q in Model.Questions)
+                {
+                    <tr>
+                        <td>@q.Text</td>
+                        <td>@(q.Order?.ToString() ?? "-")</td>
+                        <td>@q.Options.Count</td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-outline-primary btn-sm" title="Editar" disabled>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <form asp-action="Delete" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@q.Id" />
+                                    <input type="hidden" name="surveyId" value="@Model.SelectedSurveyId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir" onclick="return confirm('Excluir esta pergunta?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Nenhuma pergunta encontrada.</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="newQuestionModal" tabindex="-1" aria-labelledby="newQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newQuestionModalLabel">Nova Pergunta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="surveyIdInput" name="SurveyId" value="@Model.SelectedSurveyId" />
+                    <div class="mb-3">
+                        <label class="form-label">Texto</label>
+                        <textarea name="Text" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordem (opcional)</label>
+                        <input name="Order" type="number" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const surveySelect = document.querySelector('select[name="surveyId"]');
+        const surveyIdInput = document.getElementById("surveyIdInput");
+        const questionModal = document.getElementById('newQuestionModal');
+        questionModal?.addEventListener('show.bs.modal', () => {
+            if (surveyIdInput && surveySelect) surveyIdInput.value = surveySelect.value;
+        });
+    </script>
+}

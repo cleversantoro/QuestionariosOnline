@@ -1,0 +1,129 @@
+@model Questionarios.PortalAdmin.Models.OptionListViewModel
+@{
+    ViewData["Title"] = "Opções";
+}
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Cadastros</p>
+        <h1>Opções</h1>
+        <p class="text-muted">Selecione o questionário e a pergunta para gerenciar opções.</p>
+    </div>
+</div>
+
+<div class="panel-card mb-3">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label">Questionário</label>
+            <select name="surveyId" class="form-select" onchange="this.form.submit()">
+                <option value="">Selecione</option>
+                @foreach (var survey in Model.Surveys)
+                {
+                    <option value="@survey.Id" selected="@(survey.Id == Model.SelectedSurveyId)">@survey.Title</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Pergunta</label>
+            <select name="questionId" class="form-select" onchange="this.form.submit()" @(Model.SelectedSurveyId == null ? "disabled" : "")>
+                <option value="">Selecione</option>
+                @foreach (var q in Model.Questions)
+                {
+                    <option value="@q.Id" selected="@(q.Id == Model.SelectedQuestionId)">@q.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#newOptionModal" @(Model.SelectedQuestionId == null ? "disabled" : "")>
+                <i class="bi bi-plus-lg me-2"></i>Adicionar
+            </button>
+        </div>
+    </form>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <div>
+            <p class="eyebrow">Lista</p>
+            <h3>Opções da pergunta</h3>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>Texto</th>
+                <th>Ordem</th>
+                <th class="text-end">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Options.Any())
+            {
+                foreach (var o in Model.Options)
+                {
+                    <tr>
+                        <td>@o.Text</td>
+                        <td>@(o.Order?.ToString() ?? "-")</td>
+                        <td class="text-end">
+                            <form asp-action="Delete" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@o.Id" />
+                                <input type="hidden" name="surveyId" value="@Model.SelectedSurveyId" />
+                                <input type="hidden" name="questionId" value="@Model.SelectedQuestionId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Excluir esta opção?');" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center text-muted">Nenhuma opção encontrada.</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="newOptionModal" tabindex="-1" aria-labelledby="newOptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newOptionModalLabel">Nova Opção</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" name="QuestionId" value="@Model.SelectedQuestionId" />
+                    <input type="hidden" name="surveyId" value="@Model.SelectedSurveyId" />
+                    <div class="mb-3">
+                        <label class="form-label">Texto</label>
+                        <textarea name="Text" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ordem (opcional)</label>
+                        <input name="Order" type="number" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

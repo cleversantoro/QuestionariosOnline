@@ -14,6 +14,7 @@ public class QuestionariosDbContext : DbContext
     public DbSet<Response> Responses => Set<Response>();
     public DbSet<ResponseItem> ResponseItems => Set<ResponseItem>();
     public DbSet<AggregatedResult> AggregatedResults => Set<AggregatedResult>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +54,20 @@ public class QuestionariosDbContext : DbContext
         modelBuilder.Entity<AggregatedResult>(e =>
         {
             e.HasKey(x => x.SurveyId);
+        });
+
+        modelBuilder.Entity<Question>(e =>
+        {
+            e.Property(x => x.Order).IsRequired(false);
+        });
+
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).HasMaxLength(150).IsRequired();
+            e.Property(x => x.Email).HasMaxLength(200).IsRequired();
+            e.Property(x => x.PasswordHash).IsRequired();
+            e.HasIndex(x => x.Email).IsUnique();
         });
     }
 }
