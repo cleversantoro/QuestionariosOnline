@@ -1,0 +1,17 @@
+flowchart LR
+    resp[Respondente Cidadão] -. HTTP/HTTPS .-> web[Web Público\nASP.NET Core MVC]
+    analista[Pesquisador/Analista Usuário interno] -. HTTP/HTTPS .-> admin[Portal Admin\nASP.NET Core MVC]
+    admin -. HTTP/HTTPS .-> api[API de Questionários\nASP.NET Core Web API]
+    web -. HTTP/HTTPS .-> api
+    api -. CRUD / JSON .-> db[(SQL Server / EF Core)]
+    api -. Cache .-> cache[(Cache Redis / InMemory)]
+    api -. Mensagens .-> queue[(Fila - Service Bus / RabbitMQ)]
+    worker[Worker .NET] -. Consome/Produz .-> queue
+    worker -. CRUD .-> db
+    subgraph Observabilidade
+      logs[Logs / Métricas\nSerilog / Otel / AI]
+    end
+    api -.-> logs
+    worker -.-> logs
+    web -.-> logs
+    admin -.-> logs

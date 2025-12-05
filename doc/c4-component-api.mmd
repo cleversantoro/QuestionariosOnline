@@ -1,0 +1,22 @@
+flowchart TB
+    subgraph API [API Questionários - Componentes]
+      controllers[Controllers\nSurvey/Questions/Responses/Results/Users]
+      services[Application Services\nSurveyService/QuestionService/ResponseService/ResultsService/UserService]
+      repos[Repositórios EF Core\nSurvey/Question/Response/Results/User]
+      dtos[DTOs + Validation\nQuestionarios.Application.DTOs]
+      cacheSvc[ICacheService\nInMemory/Redis]
+      queueSvc[IQueueClient\nConsole/Service Bus]
+    end
+
+    controllers -->|Map DTOs / HTTP| services
+    services -->|Persistência| repos
+    services -->|Cache chart| cacheSvc
+    services -->|Publica resposta| queueSvc
+
+    repos -->|DbContext| db[(QuestionariosDbContext\nSQL Server)]
+    cacheSvc --> cache[(Cache)]
+    queueSvc --> queue[(Fila de Mensagens)]
+
+    logs[Logs/Métricas\nSerilog/Otel] -.-> controllers
+    logs -.-> services
+    logs -.-> repos

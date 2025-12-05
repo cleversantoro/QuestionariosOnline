@@ -21,9 +21,7 @@ public class QuestionService : IQuestionService
                      ?? throw new InvalidOperationException("Survey not found");
 
         var question = new Question(dto.SurveyId, dto.Text, dto.Order);
-        survey.Questions.Add(question);
-
-        await _surveyRepository.UpdateAsync(survey, ct);
+        await _questionRepository.AddAsync(question, ct);
     }
 
     public async Task AddOptionAsync(OptionCreateDto dto, CancellationToken ct = default)
@@ -32,9 +30,7 @@ public class QuestionService : IQuestionService
                        ?? throw new InvalidOperationException("Question not found");
 
         var option = new Option(dto.QuestionId, dto.Text, dto.Order);
-        question.Options.Add(option);
-
-        await _questionRepository.UpdateAsync(question, ct);
+        await _questionRepository.AddOptionAsync(option, ct);
     }
 
     public async Task<QuestionDetailDto> GetAsync(Guid id, CancellationToken ct = default)

@@ -86,11 +86,36 @@
     <script>
         const sendCopySwitch = document.getElementById('sendCopySwitch');
         const emailField = document.getElementById('emailField');
+        const optionRadios = document.querySelectorAll('.option-pill input[type="radio"]');
+        const optionPills = document.querySelectorAll('.option-pill');
 
         if (sendCopySwitch) {
             sendCopySwitch.addEventListener('change', () => {
                 emailField.classList.toggle('d-none', !sendCopySwitch.checked);
             });
         }
+
+        optionRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const groupName = radio.name;
+                document
+                    .querySelectorAll(`input[name="${groupName}"]`)
+                    .forEach(input => input.closest('.option-pill')?.classList.remove('is-selected'));
+
+                radio.closest('.option-pill')?.classList.add('is-selected');
+            });
+        });
+
+        // Garante que clicar em qualquer área do "pill" selecione a opção
+        optionPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const input = pill.querySelector('input[type="radio"]');
+                if (!input) return;
+                if (!input.checked) {
+                    input.checked = true;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        });
     </script>
 }

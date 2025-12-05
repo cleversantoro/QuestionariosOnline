@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph Frontend
+      web[Web Público\nASP.NET Core MVC/Razor]
+      admin[Portal Admin\nASP.NET Core MVC]
+    end
+
+    subgraph Backend
+      api[API Questionários\nASP.NET Core Web API\nControllers + Services + DTOs]
+      worker[Worker de Processamento\nBackgroundService]
+    end
+
+    subgraph Infra
+      db[(SQL Server\nEF Core DbContext + Migrations)]
+      cache[(Cache Redis / InMemoryCacheService)]
+      queue[(Service Bus / RabbitMQ\nIQueueClient)]
+      logs[Serilog / OpenTelemetry / App Insights]
+    end
+
+    resp[Respondente] -->|Responde pesquisa| web
+    analista[Pesquisador/Analista] -->|Cria/consulta| admin
+
+    web -->|GET survey / POST responses| api
+    admin -->|CRUD survey / GET chart| api
+
+    api -->|CRUD| db
+    api -->|Get/Set| cache
+    api -->|Publica respostas| queue
+    worker -->|Consome/atualiza agregados| queue
+    worker -->|CRUD| db
+    worker -->|Atualiza cache| cache
+
+    api -.-> logs
+    worker -.-> logs
+    web -.-> logs
+    admin -.-> logs

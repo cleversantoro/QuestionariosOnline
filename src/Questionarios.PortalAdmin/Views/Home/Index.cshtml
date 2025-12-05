@@ -105,24 +105,24 @@
         });
 
         function renderCharts(chartData) {
-            if (!chartData || !chartData.questions || chartData.questions.length === 0) {
+            if (!chartData || !chartData.Questions || chartData.Questions.length === 0) {
                 return;
             }
-            const firstQuestion = chartData.questions[0];
-            const secondQuestion = chartData.questions[1] || firstQuestion;
+            const firstQuestion = chartData.Questions[0];
+            const secondQuestion = chartData.Questions[1] || firstQuestion;
 
-            const lineLabels = firstQuestion.options.map(o => o.label);
-            const lineValues = firstQuestion.options.map(o => o.votes);
+            const lineLabels = firstQuestion.Options.map(o => o.Label);
+            const lineValues = firstQuestion.Options.map(o => o.Votes);
             responsesChart.data.labels = lineLabels;
             responsesChart.data.datasets[0].data = lineValues;
             responsesChart.update();
 
-            distributionChart.data.labels = firstQuestion.options.map(o => o.label);
-            distributionChart.data.datasets[0].data = firstQuestion.options.map(o => o.votes);
+            distributionChart.data.labels = firstQuestion.Options.map(o => o.Label);
+            distributionChart.data.datasets[0].data = firstQuestion.Options.map(o => o.Votes);
             distributionChart.update();
 
-            channelChart.data.labels = secondQuestion.options.map(o => o.label);
-            channelChart.data.datasets[0].data = secondQuestion.options.map(o => o.votes);
+            channelChart.data.labels = secondQuestion.Options.map(o => o.Label);
+            channelChart.data.datasets[0].data = secondQuestion.Options.map(o => o.Votes);
             channelChart.update();
         }
 
