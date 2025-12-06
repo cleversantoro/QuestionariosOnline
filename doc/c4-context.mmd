@@ -1,6 +1,6 @@
 flowchart LR
-    respondent[Respondente\n(Cidadao/participante)] -. HTTPS .-> publicSite[Site Publico\nASP.NET Core MVC]
-    analyst[Pesquisador ou Admin\n(Usuario interno)] -. HTTPS .-> adminPortal[Portal Admin\nASP.NET Core MVC]
+    respondent[Respondente Cidadao/participante] -. HTTPS .-> publicSite[Site Publico\nASP.NET Core MVC]
+    analyst[Pesquisador ou Admin Usuario interno] -. HTTPS .-> adminPortal[Portal Admin\nASP.NET Core MVC]
 
     adminPortal -->|CRUD de pesquisas e charts| api[API Questionarios\nASP.NET Core Web API]
     publicSite -->|Obter pesquisa + enviar respostas| api
@@ -12,8 +12,8 @@ flowchart LR
     queue --> worker[Worker .NET]
     worker -->|Consumir respostas\natualizar agregados| sql
     worker -->|Invalidar/atualizar| cache
-    worker -->|Retornar status (futuro)| api
-    api -->|Mensagens de resposta (futuro)| queue
+    worker -->|Retornar status futuro| api
+    api -->|Mensagens de resposta futuro| queue
 
     subgraph Observabilidade
         obs[Logs / metricas / traces\nSerilog ou OpenTelemetry]
