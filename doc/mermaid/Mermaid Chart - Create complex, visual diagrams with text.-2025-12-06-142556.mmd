@@ -1,0 +1,21 @@
+flowchart LR
+
+    subgraph Worker[Worker .NET - Componentes]
+        direction TB
+
+        QueueConsumer[ResponseQueueConsumer<br/>Lê mensagens da fila]
+        ResponseProcessor[ResponseProcessor<br/>Valida e enriquece respostas]
+        BatchWriter[BatchWriter<br/>Grava em lote no SQL]
+
+        WorkerSql[SqlDbContext<br/>ou Repositórios de Resposta]
+        WorkerMonitor[WorkerMonitoringClient<br/>Logs / Métricas]
+    end
+
+    QueueExt[(Fila de Respostas)] --> QueueConsumer
+    QueueConsumer --> ResponseProcessor
+    ResponseProcessor --> BatchWriter
+    BatchWriter --> WorkerSql
+
+    QueueConsumer --> WorkerMonitor
+    ResponseProcessor --> WorkerMonitor
+    BatchWriter --> WorkerMonitor

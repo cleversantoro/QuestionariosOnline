@@ -1,0 +1,17 @@
+flowchart TB
+
+    subgraph Web[Web App Público - Componentes]
+        direction TB
+
+        SurveyListing[SurveyListingPage<br/>Lista questionários disponíveis]
+        SurveyIntro[SurveyIntroPage<br/>Termos / explicação]
+        SurveyForm[SurveyFormPage<br/>Formulário dinâmico]
+        SubmitService[SurveySubmitService<br/>Envio de respostas]
+        PublicApiClient[PublicApiClient<br/>HttpClient p/ API]
+    end
+
+    SurveyListing --> SurveyIntro
+    SurveyIntro --> SurveyForm
+    SurveyForm --> SubmitService
+    SubmitService --> PublicApiClient
+    PublicApiClient --> API[(API de Questionários)]

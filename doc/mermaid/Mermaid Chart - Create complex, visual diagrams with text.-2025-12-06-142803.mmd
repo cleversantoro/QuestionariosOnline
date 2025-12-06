@@ -1,0 +1,25 @@
+flowchart TB
+
+    subgraph Admin[Portal Admin / Analytics - Componentes]
+        direction TB
+
+        AuthGuard[AuthGuard / Middleware<br/>Valida IdP / Identity]
+        Dashboard[DashboardModule<br/>Visão geral de KPIs]
+        SurveyMgmt[SurveyManagementModule<br/>CRUD de Questionários]
+        ResultsView[ResultsVisualizationModule<br/>Gráficos e Tabelas]
+        ExportModule[ExportModule<br/>CSV / Excel / PDF]
+
+        AdminApiClient[AdminApiClient<br/>HttpClient para API]
+    end
+
+    AuthGuard --> Dashboard
+    AuthGuard --> SurveyMgmt
+    AuthGuard --> ResultsView
+    AuthGuard --> ExportModule
+
+    Dashboard --> AdminApiClient
+    SurveyMgmt --> AdminApiClient
+    ResultsView --> AdminApiClient
+    ExportModule --> AdminApiClient
+
+    AdminApiClient --> API[(API de Questionários)]

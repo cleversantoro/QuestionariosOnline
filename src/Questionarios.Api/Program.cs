@@ -16,8 +16,18 @@ var services = builder.Services;
 var config = builder.Configuration;
 
 // DbContext
+var isIntegrationTest = builder.Environment.IsEnvironment("IntegrationTest");
 services.AddDbContext<QuestionariosDbContext>(opt =>
-    opt.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+{
+if (isIntegrationTest)
+{
+    opt.UseInMemoryDatabase($"QuestionariosTestDb-{Guid.NewGuid()}");
+}
+else
+    {
+        opt.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+    }
+});
 
 // Domain infra
 services.AddScoped<ISurveyRepository, SurveyRepository>();

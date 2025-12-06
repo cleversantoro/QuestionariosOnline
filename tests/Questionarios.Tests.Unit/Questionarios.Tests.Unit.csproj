@@ -18,4 +18,11 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Questionarios.Application\Questionarios.Application.csproj" />
+    <ProjectReference Include="..\..\src\Questionarios.Domain\Questionarios.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Questionarios.PortalAdmin\Questionarios.PortalAdmin.csproj" />
+    <ProjectReference Include="..\..\src\Questionarios.WebPublico\Questionarios.WebPublico.csproj" />
+  </ItemGroup>
+
 </Project>

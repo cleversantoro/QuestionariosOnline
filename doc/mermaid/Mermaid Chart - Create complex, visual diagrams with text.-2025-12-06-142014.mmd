@@ -1,0 +1,47 @@
+flowchart TD
+
+    %% Atores
+    Respondente([Respondente])
+    Pesquisador([Pesquisador / Analista])
+
+    %% Sistema e containers
+    subgraph Plataforma[Plataforma de Questionários Online]
+        direction TB
+
+        WebApp[(Web App Público<br/>ASP.NET Core MVC/SPA)]
+        PortalAdmin[(Portal Admin / Analytics<br/>ASP.NET Core MVC/SPA)]
+
+        API[(API de Questionários<br/>ASP.NET Core Web API)]
+        Worker[(Worker .NET<br/>Processamento de Respostas)]
+
+        Cache[(Cache Redis)]
+        Fila[(Fila de Respostas<br/>Message Queue)]
+        SQL[(Banco de Dados<br/>SQL Server)]
+
+        Auth[(Auth .NET Identity / IdP Externo)]
+        Monitor[(Monitoramento / Logs<br/>APM + Logging)]
+    end
+
+    %% Fluxos de usuário
+    Respondente --> WebApp
+    WebApp --> API
+
+    Pesquisador --> PortalAdmin
+    PortalAdmin --> API
+
+    %% Infra de segurança
+    Auth --> PortalAdmin
+
+    %% Integrações internas
+    API --> Cache
+    API --> Fila
+    Fila --> Worker
+
+    API --> SQL
+    Worker --> SQL
+
+    %% Observabilidade
+    API --> Monitor
+    Worker --> Monitor
+    WebApp --> Monitor
+    PortalAdmin --> Monitor

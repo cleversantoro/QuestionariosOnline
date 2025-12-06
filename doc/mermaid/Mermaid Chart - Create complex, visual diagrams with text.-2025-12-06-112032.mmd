@@ -1,0 +1,13 @@
+C4Context
+title Sistema de Questionários Online - Contexto
+
+Person(respondente, "Respondente", "Usuário que responde aos questionários")
+Person(analista, "Pesquisador / Analista", "Cria, analisa e interpreta resultados dos questionários")
+
+System(plataforma, "Plataforma de Questionários Online", "Onde os questionários são criados, publicados e respondidos.")
+
+System_Ext(redes, "Plataformas de Anúncio / Redes Sociais", "Origem do tráfego que leva o Respondente aos questionários.")
+
+Rel(respondente, plataforma, "Responde questionários")
+Rel(analista, plataforma, "Gerencia pesquisas e analisa resultados")
+Rel(redes, respondente, "Encaminha para o questionário")

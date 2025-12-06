@@ -1,0 +1,46 @@
+flowchart TD
+
+    %% Atores
+    Respondente([Respondente])
+    Pesquisador([Pesquisador / Analista])
+
+    %% Portais e Apps
+    WebApp[(Web App Público<br/>ASP.NET Core)]
+    PortalAdmin[(Portal Admin / Analytics<br/>ASP.NET Core MVC/SPA)]
+    
+    %% API e Serviços
+    API[(API de Questionários<br/>ASP.NET Core Web API)]
+    Cache[(Cache Redis)]
+    Fila[(Fila de Respostas<br/>Message Queue)]
+    Worker[(Worker .NET<br/>Processa Respostas)]
+
+    %% Banco
+    SQL[(Banco de Dados<br/>SQL Server)]
+
+    %% Autenticação
+    Auth[(Auth .NET Identity / IdP Externo)]
+
+    %% Monitoramento
+    Monitor[(Monitoramento / Logs<br/>API + Worker + Portais)]
+
+    %% Fluxos principais
+    Respondente --> WebApp
+    WebApp --> API
+
+    API --> Cache
+    API --> Fila
+    Fila --> Worker
+
+    API --> SQL
+    Worker --> SQL
+
+    Pesquisador --> PortalAdmin
+    PortalAdmin --> API
+
+    %% Segurança
+    Auth --> PortalAdmin
+
+    %% Observabilidade
+    API --> Monitor
+    Worker --> Monitor
+    PortalAdmin --> Monitor

@@ -1,0 +1,46 @@
+flowchart LR
+
+    subgraph API[API de Questionários - Componentes]
+        direction TB
+
+        %% Controllers
+        SurveyController[SurveyController<br/>/api/surveys]
+        ResponseController[ResponseController<br/>/api/responses]
+        ResultsController[ResultsController<br/>/api/results]
+
+        %% Application Services
+        SurveyService[SurveyService]
+        ResponseService[ResponseService]
+        ResultsService[ResultsService]
+        AuthService[AuthService]
+
+        %% Infra / Persistência
+        SurveyRepository[SurveyRepository<br/>ISurveyRepository]
+        ResponseRepository[ResponseRepository<br/>IResponseRepository]
+        ResultsReadModel[ResultsReadModelRepository]
+        CacheService[CacheService<br/>Redis]
+        QueuePublisher[QueuePublisher<br/>Publica na Fila]
+        SqlContext[SqlDbContext<br/>EF Core / Dapper]
+    end
+
+    %% Ligações Controllers -> Services
+    SurveyController --> SurveyService
+    ResponseController --> ResponseService
+    ResultsController --> ResultsService
+    ResultsController --> AuthService
+
+    %% Services -> Repositórios / Infra
+    SurveyService --> SurveyRepository
+    ResponseService --> ResponseRepository
+    ResultsService --> ResultsReadModel
+    ResultsService --> CacheService
+    ResponseService --> QueuePublisher
+
+    %% Repositórios -> DB
+    SurveyRepository --> SqlContext
+    ResponseRepository --> SqlContext
+    ResultsReadModel --> SqlContext
+
+    %% Infra -> Externo
+    CacheService --> CacheExt[(Redis)]
+    QueuePublisher --> QueueExt[(Fila de Respostas)]

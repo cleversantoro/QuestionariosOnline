@@ -1,16 +1,23 @@
 flowchart TD
-    infra[WebApplicationFactory\nIntegrationTest + InMemory + Seed]
+    infra["WebApplicationFactory
+    (IntegrationTest + InMemory + Seed)"]
 
     subgraph Unitarios
         u1[ResponseServiceTests]
-        u2[QuestionariosApiClientTests]
-        u3[SurveyControllerTests\nWebPublico]
+        u2["QuestionariosApiClientTests"]
+        u3["SurveyControllerTests
+            WebPublico"]
     end
 
     subgraph Integracao
-        i1[SurveyControllerTests\nAPI GET /survey/id]
-        i2[ResponsesControllerTests\nAPI POST /responses]
-        i3[ResultsControllerTests\nAPI GET /results/id/chart]
+        i1["SurveyControllerTests
+            (API GET /survey/{id})"]
+        
+        i2["ResponsesControllerTests 
+        (API POST /responses)"]
+        
+        i3["ResultsControllerTests 
+        (API GET /results/{id}/chart)"]
     end
 
     u1 --> infra

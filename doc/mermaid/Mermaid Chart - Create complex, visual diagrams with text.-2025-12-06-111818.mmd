@@ -1,0 +1,17 @@
+graph TD
+    subgraph Navegador
+        Frontend[Angular App<br/>SPA]
+    end
+
+    subgraph ServidorApp
+        API[.NET 9 Web API<br/>REST]
+    end
+
+    subgraph Infra
+        DB[(MySQL)]
+        Storage[(File System / MinIO / S3)]
+    end
+
+    Frontend -->|HTTP/JSON| API
+    API -->|SQL| DB
+    API -->|Upload/Download Imagens| Storage

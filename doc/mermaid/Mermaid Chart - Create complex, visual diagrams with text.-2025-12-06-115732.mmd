@@ -1,0 +1,20 @@
+C4Container
+title Sistema de Questionários Online - Containers
+
+Person(respondente, "Respondente", "Acessa e responde formulários.")
+Person(analista, "Pesquisador / Analista", "Cria pesquisas e interpreta resultados.")
+
+System_Boundary(sistema, "Plataforma de Questionários Online") {
+
+    Container(frontend, "Frontend Web", "Angular/React/Vue", "Interface onde respondentes e analistas interagem.")
+    Container(api, "API Backend", ".NET 9 / Node.js", "Fornece endpoints para criar pesquisas, registrar respostas e gerar relatórios.")
+    ContainerDb(db, "Banco de Dados", "MySQL/SQL Server", "Armazena pesquisas, perguntas, respostas e relatórios.")
+}
+
+System_Ext(redes, "Plataformas de Anúncio / Redes Sociais", "Origem de tráfego e divulgação de links de questionários.")
+
+Rel(respondente, frontend, "Responde questionários via")
+Rel(analista, frontend, "Gerencia pesquisas via")
+Rel(frontend, api, "Consome API REST", "HTTPS/JSON")
+Rel(api, db, "CRUD", "SQL")
+Rel(redes, frontend, "Direciona tráfego")
