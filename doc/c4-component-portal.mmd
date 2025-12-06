@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph PortalAdmin [Portal Admin - Componentes MVC]
+        auth[AuthController\nLogin/Logout]
+        home[HomeController\nDashboard + charts]
+        surveyCtrl[SurveyController\nCRUD de pesquisas]
+        questionCtrl[QuestionController\nCadastro de perguntas]
+        optionCtrl[OptionController\nCadastro de opcoes]
+        views[Razor Views\nLayouts/Partials]
+        session[Session state\nUsuario logado + idioma]
+        apiClient[QuestionariosApiClient (HttpClient)\nChama API JSON]
+        models[ViewModels/Models]
+    end
+
+    auth --> session
+    auth --> apiClient
+    surveyCtrl --> apiClient
+    questionCtrl --> apiClient
+    optionCtrl --> apiClient
+    home --> apiClient
+
+    auth --> models
+    home --> models
+    surveyCtrl --> models
+    questionCtrl --> models
+    optionCtrl --> models
+
+    models --> views
+    session --> views
+
+    apiClient --> api[(API Questionarios)]
+    views -->|HTML/Razor| browser[(Browser Admin)]

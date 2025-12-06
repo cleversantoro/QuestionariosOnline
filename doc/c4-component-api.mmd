@@ -1,22 +1,27 @@
 flowchart TB
-    subgraph API [API Questionários - Componentes]
-      controllers[Controllers\nSurvey/Questions/Responses/Results/Users]
-      services[Application Services\nSurveyService/QuestionService/ResponseService/ResultsService/UserService]
-      repos[Repositórios EF Core\nSurvey/Question/Response/Results/User]
-      dtos[DTOs + Validation\nQuestionarios.Application.DTOs]
-      cacheSvc[ICacheService\nInMemory/Redis]
-      queueSvc[IQueueClient\nConsole/Service Bus]
+    subgraph API [API Questionarios - Componentes]
+      controllers[Controllers REST\nSurvey, Questions, Responses, Results, Users]
+      appServices[Application Services\nSurveyService, QuestionService,\nResponseService, ResultsService, UserService]
+      dtos[DTOs / Contracts\nQuestionarios.Application.DTOs]
+      domainHelpers[Validacoes de dominio\nEntities + IDateTimeProvider]
+      repos[Repositorios EF Core\nSurveyRepository, QuestionRepository,\nResponseRepository, ResultsRepository, UserRepository]
+      cacheSvc[ICacheService\nInMemoryCacheService ou Redis]
+      queueSvc[IQueueClient\nConsoleQueueClient ou Service Bus]
+      dbCtx[QuestionariosDbContext\nEF Core]
     end
 
-    controllers -->|Map DTOs / HTTP| services
-    services -->|Persistência| repos
-    services -->|Cache chart| cacheSvc
-    services -->|Publica resposta| queueSvc
+    controllers -->|Mapear HTTP <-> DTOs| appServices
+    controllers --> dtos
+    appServices -->|Persistencia| repos
+    appServices -->|Cache de charts| cacheSvc
+    appServices -->|Publicar ResponseMessage| queueSvc
+    appServices --> domainHelpers
 
-    repos -->|DbContext| db[(QuestionariosDbContext\nSQL Server)]
+    repos --> dbCtx
+    dbCtx --> sql[(SQL Server)]
     cacheSvc --> cache[(Cache)]
-    queueSvc --> queue[(Fila de Mensagens)]
+    queueSvc --> queue[(Fila de mensagens)]
 
-    logs[Logs/Métricas\nSerilog/Otel] -.-> controllers
-    logs -.-> services
+    logs[Logs / metricas\nSerilog ou OpenTelemetry] -.-> controllers
+    logs -.-> appServices
     logs -.-> repos

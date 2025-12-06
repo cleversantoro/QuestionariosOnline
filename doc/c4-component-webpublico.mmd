@@ -1,0 +1,18 @@
+flowchart TB
+    subgraph WebPublico [Site Publico - Componentes MVC]
+        surveyController[SurveyController\nExibe survey e envia respostas]
+        apiClient[SurveyApiClient (HttpClient)\nGET survey / POST responses]
+        viewModels[ViewModels\nSurveyResponseViewModel\nQuestionAnswerInput]
+        views[Razor Views\nForm de respostas]
+        settings[ApiSettings\nDefaultSurveyId + BaseUrl]
+        logger[Logging\nILogger]
+    end
+
+    surveyController --> settings
+    surveyController --> viewModels
+    surveyController --> apiClient
+    viewModels --> views
+    apiClient --> api[(API Questionarios)]
+    views --> browser[(Respondente no navegador)]
+    logger -.-> surveyController
+    logger -.-> apiClient

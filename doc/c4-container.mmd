@@ -1,35 +1,35 @@
 flowchart TB
     subgraph Frontend
-      web[Web Público\nASP.NET Core MVC/Razor]
-      admin[Portal Admin\nASP.NET Core MVC]
+      publicSite[Site Publico\nASP.NET Core MVC/Razor]
+      adminPortal[Portal Admin\nASP.NET Core MVC/Razor + Session]
     end
 
     subgraph Backend
-      api[API Questionários\nASP.NET Core Web API\nControllers + Services + DTOs]
-      worker[Worker de Processamento\nBackgroundService]
+      api[API Questionarios\nASP.NET Core Web API\nControllers + Application Services]
+      worker[Worker de processamento\nBackgroundService]
     end
 
     subgraph Infra
-      db[(SQL Server\nEF Core DbContext + Migrations)]
-      cache[(Cache Redis / InMemoryCacheService)]
-      queue[(Service Bus / RabbitMQ\nIQueueClient)]
-      logs[Serilog / OpenTelemetry / App Insights]
+      sql[(SQL Server\nQuestionariosDbContext + Migrations)]
+      cache[(Cache Redis ou MemoryCache\nICacheService)]
+      queue[(Fila de mensagens\nIQueueClient)]
+      observability[Serilog / OpenTelemetry]
     end
 
-    resp[Respondente] -->|Responde pesquisa| web
-    analista[Pesquisador/Analista] -->|Cria/consulta| admin
+    respondent[Respondente] -->|Responder pesquisa| publicSite
+    analyst[Analista/Admin] -->|Criar e acompanhar| adminPortal
 
-    web -->|GET survey / POST responses| api
-    admin -->|CRUD survey / GET chart| api
+    publicSite -->|GET survey / POST responses\nJSON sobre HTTPS| api
+    adminPortal -->|CRUD survey, perguntas e opcoes\nJSON sobre HTTPS| api
 
-    api -->|CRUD| db
-    api -->|Get/Set| cache
-    api -->|Publica respostas| queue
-    worker -->|Consome/atualiza agregados| queue
-    worker -->|CRUD| db
-    worker -->|Atualiza cache| cache
+    api -->|EF Core CRUD| sql
+    api -->|Get/Set charts| cache
+    api -->|Publicar ResponseMessage| queue
 
-    api -.-> logs
-    worker -.-> logs
-    web -.-> logs
-    admin -.-> logs
+    worker -->|Consumir ResponseMessage\natualizar agregados| sql
+    worker -->|Atualizar cache| cache
+
+    api -.-> observability
+    worker -.-> observability
+    publicSite -.-> observability
+    adminPortal -.-> observability

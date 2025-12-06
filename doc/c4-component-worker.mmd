@@ -1,0 +1,22 @@
+flowchart TB
+    subgraph Worker [Worker .NET - Componentes]
+        workerSvc[Worker (BackgroundService)\nLoop para processar mensagens]
+        queueClient[IQueueClient\nSubscribe/Receive ResponseMessage]
+        resultsRepo[IResultsRepository\nAtualiza agregados]
+        surveyRepo[ISurveyRepository\nConfere survey e perguntas]
+        cacheSvc[ICacheService\nInvalidar/atualizar chart]
+        clock[IDateTimeProvider]
+    end
+
+    workerSvc --> queueClient
+    queueClient --> workerSvc
+    workerSvc --> resultsRepo
+    workerSvc --> surveyRepo
+    workerSvc --> cacheSvc
+    workerSvc --> clock
+
+    resultsRepo --> sql[(SQL Server)]
+    surveyRepo --> sql
+    cacheSvc --> cache[(Cache)]
+
+    logs[Logs / metricas\nSerilog ou OpenTelemetry] -.-> workerSvc
