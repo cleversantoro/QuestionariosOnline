@@ -53,7 +53,7 @@ public class QuestionariosDbContext : DbContext
 
         modelBuilder.Entity<AggregatedResult>(e =>
         {
-            e.HasKey(x => x.SurveyId);
+            e.HasKey(x => new { x.SurveyId, x.QuestionId, x.OptionId });
         });
 
         modelBuilder.Entity<Question>(e =>

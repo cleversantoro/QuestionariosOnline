@@ -12,16 +12,12 @@ public class AggregatedResult
         Votes = 0;
     }
 
-    public AggregatedResult(Guid surveyId) : this()
+    public AggregatedResult(Guid surveyId, Guid questionId, Guid optionId) : this()
     {
         SurveyId = surveyId;
+        QuestionId = questionId;
+        OptionId = optionId;
     }
 
-    public void IncrementVote(Guid optionId)
-    {
-        if (!SurveyId.Equals(optionId))
-            Votes = 0;
-
-        Votes++;
-    }
+    public void IncrementVote() => Votes++;
 }

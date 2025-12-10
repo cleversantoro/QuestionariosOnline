@@ -18,7 +18,7 @@ public class ResponsesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Submit([FromBody] ResponseCreateDto dto, CancellationToken ct)
     {
-        await _responseService.SubmitAsync(dto, ct);
-        return Accepted();
+        var response = await _responseService.SubmitAsync(dto, ct);
+        return Ok(response);
     }
 }

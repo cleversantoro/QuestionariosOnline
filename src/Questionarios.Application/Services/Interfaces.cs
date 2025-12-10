@@ -28,7 +28,7 @@ public interface IQuestionService
 
 public interface IResponseService
 {
-    Task SubmitAsync(ResponseCreateDto dto, CancellationToken ct = default);
+    Task<ResponseDto> SubmitAsync(ResponseCreateDto dto, CancellationToken ct = default);
 }
 
 public interface IResultsService

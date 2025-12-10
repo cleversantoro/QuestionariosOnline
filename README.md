@@ -37,7 +37,11 @@ docker compose up -d sqlserver
 ```
 sqlcmd -S localhost,1433 -U sa -P <senha> -i sql/init_questionarios.sql
 ```
-
+3) Para usar o site de Admin
+```
+user : admin@questionarios.com
+senha : Admin@123
+```
 ## Rodando local
 Restaurar dependencias uma vez:
 ```

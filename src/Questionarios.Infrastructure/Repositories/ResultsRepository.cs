@@ -1,5 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+ï»¿using Microsoft.EntityFrameworkCore;
 using Questionarios.Domain.Abstractions;
 using Questionarios.Domain.Entities;
 
@@ -11,32 +10,49 @@ public class ResultsRepository : IResultsRepository
 
     public ResultsRepository(QuestionariosDbContext db) => _db = db;
 
-    // Esses dois podem ficar “não implementados” se você não estiver usando
-    public Task<AggregatedResult?> GetBySurveyIdAsync(Guid surveyId, CancellationToken ct = default)
-        => Task.FromResult<AggregatedResult?>(null);
+    public async Task<AggregatedResult?> GetBySurveyIdAsync(Guid surveyId, CancellationToken ct = default) =>
+        await _db.AggregatedResults
+            .AsNoTracking()
+            .Where(ar => ar.SurveyId == surveyId)
+            .OrderByDescending(ar => ar.Votes)
+            .FirstOrDefaultAsync(ct);
 
-    public Task UpsertAsync(AggregatedResult result, CancellationToken ct = default)
-        => Task.CompletedTask;
+    public async Task UpsertAsync(AggregatedResult result, CancellationToken ct = default)
+    {
+        var existing = await _db.AggregatedResults
+            .FirstOrDefaultAsync(ar =>
+                ar.SurveyId == result.SurveyId &&
+                ar.QuestionId == result.QuestionId &&
+                ar.OptionId == result.OptionId, ct);
 
-    // NOVO: cálculo direto sobre Responses/ResponseItems/Options
+        if (existing is null)
+        {
+            result.IncrementVote();
+            await _db.AggregatedResults.AddAsync(result, ct);
+        }
+        else
+        {
+            existing.IncrementVote();
+        }
+
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task<IReadOnlyList<OptionVotes>> GetOptionVotesAsync(Guid surveyId, CancellationToken ct = default)
     {
         var grouped =
-            await (from r in _db.Responses
-                   join ri in _db.ResponseItems on r.Id equals ri.ResponseId
-                   join q in _db.Questions on ri.QuestionId equals q.Id
-                   join o in _db.Options on ri.OptionId equals o.Id
-                   where r.SurveyId == surveyId
-                   group new { q, o } by new { QuestionId = q.Id, QuestionText = q.Text, OptionId = o.Id, OptionText = o.Text } into g
+            await (from ar in _db.AggregatedResults
+                   join q in _db.Questions on ar.QuestionId equals q.Id
+                   join o in _db.Options on ar.OptionId equals o.Id
+                   where ar.SurveyId == surveyId
                    select new OptionVotes(
-                       g.Key.QuestionId,   // QuestionId
-                       g.Key.QuestionText, // QuestionText
-                       g.Key.OptionId,     // OptionId
-                       g.Key.OptionText,   // OptionText
-                       g.Count()           // Votes
+                       ar.QuestionId,
+                       q.Text,
+                       ar.OptionId,
+                       o.Text,
+                       ar.Votes
                    )).ToListAsync(ct);
 
         return grouped;
     }
-
 }
