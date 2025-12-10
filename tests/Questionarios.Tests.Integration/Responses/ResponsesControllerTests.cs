@@ -16,7 +16,7 @@ public class ResponsesControllerTests : IClassFixture<CustomWebApplicationFactor
     }
 
     [Fact]
-    public async Task Submit_DeveRetornarAccepted_ParaSurveyAtiva()
+    public async Task Submit_DeveRetornarOk_ParaSurveyAtiva()
     {
         var client = _factory.CreateClient();
         var surveyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -36,6 +36,11 @@ public class ResponsesControllerTests : IClassFixture<CustomWebApplicationFactor
 
         var response = await client.PostAsJsonAsync("/api/responses", payload);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var responseDto = await response.Content.ReadFromJsonAsync<ResponseDto>();
+        responseDto.Should().NotBeNull();
+        responseDto!.SurveyId.Should().Be(surveyId);
+        responseDto.AnsweredAt.Should().BeAfter(DateTime.MinValue);
     }
 }

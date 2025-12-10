@@ -25,8 +25,8 @@ public class ResultsControllerTests
         // Arrange
         var client = _factory.CreateClient();
 
-        var surveyId = "11111111-1111-1111-1111-111111111111";
-
+        //var surveyId = "11111111-1111-1111-1111-111111111111";
+        var surveyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         // Act
         var response = await client.GetAsync($"/api/results/{surveyId}/chart");
 
@@ -35,7 +35,7 @@ public class ResultsControllerTests
 
         var chart = await response.Content.ReadFromJsonAsync<SurveyChartResultDto>();
         chart.Should().NotBeNull();
-        chart!.SurveyId.ToString().Should().Be(surveyId);
+        chart!.SurveyId.Should().Be(surveyId);
         chart.Title.Should().NotBeNullOrWhiteSpace();
         chart.Questions.Should().NotBeEmpty();
 

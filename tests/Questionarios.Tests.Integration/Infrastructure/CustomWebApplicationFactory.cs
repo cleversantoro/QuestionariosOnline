@@ -79,6 +79,27 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         r2.AddItem(q1.Id, o12.Id);
         r2.AddItem(q2.Id, o23.Id);
 
+        // Preenche tabela agregada para testes de resultados
+        var counts = new Dictionary<(Guid QuestionId, Guid OptionId), int>
+        {
+            [(q1.Id, o11.Id)] = 1,
+            [(q1.Id, o12.Id)] = 1,
+            [(q2.Id, o21.Id)] = 1,
+            [(q2.Id, o23.Id)] = 1,
+            [(q1.Id, o13.Id)] = 0,
+            [(q2.Id, o22.Id)] = 0
+        };
+
+        foreach (var (key, votes) in counts)
+        {
+            var aggregated = new AggregatedResult(surveyId, key.QuestionId, key.OptionId);
+            for (var i = 0; i < votes; i++)
+            {
+                aggregated.IncrementVote();
+            }
+            db.AggregatedResults.Add(aggregated);
+        }
+
         db.SaveChanges();
     }
 
